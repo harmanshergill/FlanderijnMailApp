@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Flanderijn Mail</title>
 
-  <!-- PWA & iOS fullscreen meta -->
-  <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Flanderijn Mail">
@@ -21,20 +19,47 @@
       color: #333;
       overflow: hidden;
       flex-direction: row;
+      background: white;
     }
-    #splash {
+    #lockscreen {
       position: fixed;
-      z-index: 10;
+      z-index: 30;
       width: 100%;
       height: 100%;
-      background: #1d3e7a;
+      background: white;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    #splash img {
-      width: 300px;
+    .lock-container { text-align: center; }
+    .lock-logo { width: 100px; margin-bottom: 20px; }
+    #pin-dots {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
     }
+    .dot { width: 15px; height: 15px; border-radius: 50%; border: 1px solid #333; margin: 0 5px; background: white; }
+    .dot.filled { background: #333; }
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-gap: 10px;
+      justify-content: center;
+    }
+    .keypad button { font-size: 20px; padding: 15px; border: none; border-radius: 8px; background: #e0e0e0; cursor: pointer; }
+    .keypad button:active { background: #ccc; }
+    #pinError { color: red; display: none; margin-top: 15px; }
+    #splash {
+      position: fixed;
+      z-index: 20;
+      width: 100%;
+      height: 100%;
+      background: #213B8F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #splash img { width: 300px; }
     .sidebar {
       width: 200px;
       background: #0078D4;
@@ -45,29 +70,11 @@
       display: flex;
       flex-direction: column;
     }
-    .sidebar h2 {
-      font-size: 16px;
-      margin-top: 0;
-    }
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      flex-grow: 1;
-    }
-    .sidebar li, .new-mail-btn {
-      padding: 8px 0;
-      cursor: pointer;
-    }
-    .sidebar li:hover, .new-mail-btn:hover {
-      background-color: rgba(255,255,255,0.2);
-    }
-    .new-mail-btn {
-      margin-top: 20px;
-      background: white;
-      color: #0078D4;
-      text-align: center;
-      border-radius: 4px;
-    }
+    .sidebar h2 { font-size: 16px; margin-top: 0; }
+    .sidebar ul { list-style: none; padding: 0; flex-grow: 1; }
+    .sidebar li, .new-mail-btn { padding: 8px 0; cursor: pointer; }
+    .sidebar li:hover, .new-mail-btn:hover { background-color: rgba(255,255,255,0.2); }
+    .new-mail-btn { margin-top: 20px; background: white; color: #0078D4; text-align: center; border-radius: 4px; }
     .email-list {
       width: 300px;
       border-right: 1px solid #ccc;
@@ -76,18 +83,9 @@
       display: flex;
       flex-direction: column;
     }
-    .email-item {
-      padding: 15px;
-      border-bottom: 1px solid #ddd;
-      cursor: pointer;
-    }
-    .email-item:hover {
-      background: #f0f0f0;
-    }
-    .email-item strong {
-      display: block;
-      font-size: 14px;
-    }
+    .email-item { padding: 15px; border-bottom: 1px solid #ddd; cursor: pointer; word-break: break-word; }
+    .email-item:hover { background: #f0f0f0; }
+    .email-item strong { display: block; font-size: 14px; }
     .email-preview {
       flex-grow: 1;
       padding: 20px;
@@ -95,33 +93,34 @@
       position: relative;
       display: flex;
       flex-direction: column;
+      word-wrap: break-word;
     }
-    .back-btn {
-      display: none;
-      margin-bottom: 10px;
-      padding: 8px;
-      background: #0078D4;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      width: fit-content;
-    }
+    .back-btn { display: block; margin-bottom: 10px; padding: 8px; background: #0078D4; color: white; border: none; border-radius: 4px; cursor: pointer; width: fit-content; }
+    .email-preview p, .email-preview h1, .email-preview h3 { text-align: left; margin-right: 0; margin-left: 0; }
     @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-      .sidebar, .email-list, .email-preview {
-        width: 100%;
-        height: 100%;
-      }
+      body { flex-direction: column; }
+      .sidebar, .email-list, .email-preview { width: 100%; height: 100%; }
     }
   </style>
 </head>
 <body>
-  <div id="splash">
-    <img src="https://i.imgur.com/MzN84xf.png" alt="Flanderijn Logo">
+
+  <div id="lockscreen">
+    <div class="lock-container">
+      <img src="https://i.imgur.com/kWlmXCq.png" alt="Logo" class="lock-logo">
+      <h2>Voer toegangscode in</h2>
+      <div id="pin-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="keypad">
+        <button onclick="pressKey(1)">1</button><button onclick="pressKey(2)">2</button><button onclick="pressKey(3)">3</button>
+        <button onclick="pressKey(4)">4</button><button onclick="pressKey(5)">5</button><button onclick="pressKey(6)">6</button>
+        <button onclick="pressKey(7)">7</button><button onclick="pressKey(8)">8</button><button onclick="pressKey(9)">9</button>
+        <button onclick="clearPin()">⌫</button><button onclick="pressKey(0)">0</button><button onclick="checkPin()">✓</button>
+      </div>
+      <p id="pinError">Onjuiste code. Probeer opnieuw.</p>
+    </div>
   </div>
+
+  <div id="splash"><img src="https://i.imgur.com/MzN84xf.png" alt="Flanderijn Logo"></div>
 
   <div class="sidebar" id="sidebar">
     <h2>Flanderijn Mail</h2>
@@ -135,60 +134,61 @@
   </div>
   <div class="email-list" id="emaillist"></div>
   <div class="email-preview" id="previewpane">
-    <button class="back-btn" id="backBtn" onclick="goBack()">Terug</button>
+    <button class="back-btn" onclick="goBack()">Terug</button>
     <h1>Welkom bij Flanderijn Mail</h1>
     <p>Selecteer een map of e-mail om te beginnen.</p>
   </div>
 
   <script>
-    const emails = {
-      inbox: [
-        {
-          subject: "Herinnering: aanmelding zomerborrel vóór 12:00",
-          sender: "Chayenne Pack <manager@flanderijn.nl>",
-          body: `Goedemorgen,
+    let pin = "";
+    function pressKey(num) { if (pin.length < 4) { pin += num; updateDots(); }}
+    function clearPin() { pin = pin.slice(0, -1); updateDots(); }
+    function updateDots() {
+      document.querySelectorAll(".dot").forEach((dot, idx) => dot.classList.toggle("filled", idx < pin.length));
+    }
+    function checkPin() {
+      if (pin === "1324") document.getElementById('lockscreen').style.display = 'none';
+      else { document.getElementById('pinError').style.display = 'block'; pin = ""; updateDots(); }
+    }
+
+    const emails = { inbox: [
+      {subject:"Herinnering: aanmelding zomerborrel vóór 12:00", sender:"Chayenne Pack <manager@flanderijn.nl>", date:"Vandaag om 10:00", body:`Goedemorgen,
 
 Voor collega's die zich nog niet hebben aangemeld voor de zomerborrel: graag vandaag vóór 12:00 doorgeven als je toch wilt komen, zodat we de reservering bij het restaurant kunnen aanpassen.
 
 Dank voor de snelle reactie!
 
 Met vriendelijke groet,
-Chayenne Pack`
-        },
-        {
-          subject: "Kun je je auto meenemen?",
-          sender: "Chayenne Pack <manager@flanderijn.nl>",
-          body: `Hoi,
+Chayenne Pack`},
+      {subject:"Kun je je auto meenemen?", sender:"Chayenne Pack <manager@flanderijn.nl>", date:"Vandaag om 09:30", body:`Hoi,
 
 Zou je je auto mee kunnen nemen voor de zomerborrel? Dan kunnen we samen zorgen dat iedereen op tijd bij het restaurant is. Alvast bedankt!
 
 Met vriendelijke groet,
-Chayenne Pack`
-        },
-        {
-          subject: "Nieuwe werkmethodes per 1 juni",
-          sender: "hr@flanderijn.nl",
-          body: "Beste collega’s,\n\nVanaf 1 juni introduceren we nieuwe werkmethodes voor dossierbehandeling. Bekijk het document op intranet voor details.\n\nMet vriendelijke groet,\nHR-afdeling"
-        },
-        {
-          subject: "Lift kapot: gebruik trap",
-          sender: "facilitair@flanderijn.nl",
-          body: "Goedemorgen,\n\nHelaas is de lift bij de hoofdingang defect. De monteur komt morgenochtend. Gebruik tijdelijk de trap. Excuses voor het ongemak.\n\nFacilitair Beheer"
-        },
-        {
-          subject: "Herinnering: evaluatiegesprek",
-          sender: "manager@flanderijn.nl",
-          body: "Hallo,\n\nDit is een herinnering voor je evaluatiegesprek op vrijdag 14 juni om 10:00 uur in kamer 3. Graag bevestigen.\n\nMet vriendelijke groet,\nJouw manager"
-        },
-        {
-          subject: "Parkeerterrein tijdelijk afgesloten",
-          sender: "facilitair@flanderijn.nl",
-          body: "Beste medewerkers,\n\nOp maandag 24 juni wordt het parkeerterrein opnieuw geasfalteerd. Parkeren is dan niet mogelijk.\n\nTeam Facilitair"
-        },
-        {
-          subject: "Uitnodiging zomerborrel",
-          sender: "Chayenne Pack <manager@flanderijn.nl>",
-          body: `Hoi allemaal,
+Chayenne Pack`},
+      {subject:"Nieuwe werkmethodes per 1 juni", sender:"hr@flanderijn.nl", date:"27 mei 2024 08:00", body:`Beste collega’s,
+
+Vanaf 1 juni introduceren we nieuwe werkmethodes voor dossierbehandeling. Bekijk het document op intranet voor details.
+
+Met vriendelijke groet,
+HR-afdeling`},
+      {subject:"Lift kapot: gebruik trap", sender:"facilitair@flanderijn.nl", date:"24 mei 2024 07:15", body:`Goedemorgen,
+
+Helaas is de lift bij de hoofdingang defect. De monteur komt morgenochtend. Gebruik tijdelijk de trap. Excuses voor het ongemak.
+
+Facilitair Beheer`},
+      {subject:"Herinnering: evaluatiegesprek", sender:"manager@flanderijn.nl", date:"21 mei 2024 15:00", body:`Hallo,
+
+Dit is een herinnering voor je evaluatiegesprek op vrijdag 14 juni om 10:00 uur in kamer 3. Graag bevestigen.
+
+Met vriendelijke groet,
+Jouw manager`},
+      {subject:"Parkeerterrein tijdelijk afgesloten", sender:"facilitair@flanderijn.nl", date:"18 mei 2024 09:00", body:`Beste medewerkers,
+
+Op maandag 24 juni wordt het parkeerterrein opnieuw geasfalteerd. Parkeren is dan niet mogelijk.
+
+Team Facilitair`},
+      {subject:"Uitnodiging zomerborrel", sender:"Chayenne Pack <manager@flanderijn.nl>", date:"15 mei 2024 11:00", body:`Hoi allemaal,
 
 Op vrijdag 28 juni houden we onze jaarlijkse zomerborrel. We verzamelen rond 16:00 op kantoor. We starten met een korte evaluatie, leren nieuwe collega's kennen en spelen een paar leuke spelletjes. Ook is er ruimte om nieuwe ideeën en plannen kenbaar te maken.
 
@@ -203,33 +203,24 @@ Planning:
 20:30 - Gezellige borrel
 00:00 - Einde programma
 
-Tot dan!`
-        }
-      ],
-      sent: [],
-      drafts: [],
-      deleted: []
-    };
+Tot dan!`}
+    ], sent: [], drafts: [], deleted: []};
 
     const sidebar = document.getElementById('sidebar');
     const emailListDiv = document.getElementById('emaillist');
     const previewPane = document.getElementById('previewpane');
 
     function switchFolder(folder) {
-      showList();
-      emailListDiv.innerHTML = '';
+      showList(); emailListDiv.innerHTML = '';
       previewPane.innerHTML = `<button class="back-btn" onclick="goBack()">Terug</button><h1>${folderName(folder)}</h1>`;
-      if (emails[folder].length === 0) {
-        previewPane.innerHTML += `<p>Deze map is leeg.</p>`;
-      } else {
-        emails[folder].forEach(mail => {
-          const item = document.createElement('div');
-          item.className = 'email-item';
-          item.innerHTML = `<strong>Onderwerp: ${mail.subject}</strong>Van: ${mail.sender}`;
-          item.onclick = () => openMail(mail);
-          emailListDiv.appendChild(item);
-        });
-      }
+      emails[folder].forEach(mail => {
+        const item = document.createElement('div');
+        item.className = 'email-item';
+        item.innerHTML = `<strong>Onderwerp: ${mail.subject}</strong>Van: ${mail.sender}`;
+        item.onclick = () => openMail(mail);
+        emailListDiv.appendChild(item);
+      });
+      if (emails[folder].length === 0) previewPane.innerHTML += `<p>Deze map is leeg.</p>`;
       if (window.innerWidth <= 768) sidebar.style.display = "none";
     }
 
@@ -238,66 +229,23 @@ Tot dan!`
         <button class="back-btn" onclick="goBack()">Terug</button>
         <h1>${mail.subject}</h1>
         <h3>Van: ${mail.sender}</h3>
+        ${mail.date ? `<p><em>${mail.date}</em></p>` : ""}
         <p>${mail.body.replace(/\n/g,"<br>")}</p>
+        <img src="https://i.imgur.com/kWlmXCq.png" alt="Logo" style="margin-top:20px;width:100px;">
       `;
       if (window.innerWidth <= 768) emailListDiv.style.display = "none";
     }
 
     function openCompose() {
-      previewPane.innerHTML = `
-        <button class="back-btn" onclick="goBack()">Terug</button>
-        <h1>Nieuwe e-mail opstellen</h1>
-        <p>Onderwerp: <input type="text" id="subject" style="width:80%"></p>
-        <p>Bericht:</p>
-        <textarea id="body" rows="10" style="width:95%"></textarea><br><br>
-        <button onclick="sendMail()">Verstuur</button>
-      `;
-      if (window.innerWidth <= 768) {
-        sidebar.style.display = "none";
-        emailListDiv.style.display = "none";
-      }
+      previewPane.innerHTML = `<button class="back-btn" onclick="goBack()">Terug</button><h1>Nieuwe e-mail opstellen</h1><p>Onderwerp: <input type="text" id="subject" style="width:80%"></p><p>Bericht:</p><textarea id="body" rows="10" style="width:95%"></textarea><br><br><button onclick="sendMail()">Verstuur</button>`;
+      if (window.innerWidth <= 768) { sidebar.style.display = "none"; emailListDiv.style.display = "none"; }
     }
 
-    function goBack() {
-      if (emailListDiv.innerHTML !== '') {
-        showList();
-      } else {
-        sidebar.style.display = "flex";
-        emailListDiv.style.display = "none";
-        previewPane.innerHTML = `<h1>Welkom bij Flanderijn Mail</h1><p>Selecteer een map of e-mail om te beginnen.</p>`;
-      }
-    }
-
-    function showList() {
-      emailListDiv.style.display = "flex";
-      previewPane.innerHTML = `<button class="back-btn" onclick="goBack()">Terug</button>`;
-    }
-
-    function sendMail() {
-      const subject = document.getElementById('subject').value.trim();
-      const body = document.getElementById('body').value.trim();
-      if (subject && body) {
-        alert("E-mail verzonden!");
-        goBack();
-      } else {
-        alert("Vul onderwerp en bericht in.");
-      }
-    }
-
-    function folderName(folder) {
-      switch (folder) {
-        case 'inbox': return 'Postvak IN';
-        case 'sent': return 'Verzonden';
-        case 'drafts': return 'Concepten';
-        case 'deleted': return 'Verwijderd';
-        default: return folder;
-      }
-    }
-
-    window.onload = () => {
-      setTimeout(() => document.getElementById('splash').style.display = 'none', 2000);
-    };
+    function goBack() { if (emailListDiv.innerHTML !== '') showList(); else { sidebar.style.display = "flex"; emailListDiv.style.display = "none"; previewPane.innerHTML = `<button class="back-btn" onclick="goBack()">Terug</button><h1>Welkom bij Flanderijn Mail</h1><p>Selecteer een map of e-mail om te beginnen.</p>`; }}
+    function showList() { emailListDiv.style.display = "flex"; previewPane.innerHTML = `<button class="back-btn" onclick="goBack()">Terug</button>`; }
+    function sendMail() { const s=document.getElementById('subject').value.trim(),b=document.getElementById('body').value.trim();if(s&&b){alert("E-mail verzonden!");goBack();}else alert("Vul onderwerp en bericht in."); }
+    function folderName(f) { return f==='inbox'?'Postvak IN':f==='sent'?'Verzonden':f==='drafts'?'Concepten':f==='deleted'?'Verwijderd':f; }
+    window.onload=()=>setTimeout(()=>document.getElementById('splash').style.display='none',2000);
   </script>
 </body>
 </html>
-
