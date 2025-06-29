@@ -97,7 +97,7 @@ window.onload=()=>{
   document.getElementById('splash').style.display='none';
   let pin=""; window.pressKey=n=>{if(pin.length<4){pin+=n;updateDots();}};
   window.clearPin=()=>{pin=pin.slice(0,-1);updateDots();};
-  window.checkPin=()=>{if(pin==="1324"){document.getElementById('lockscreen').style.display='none';}else{document.getElementById('pinError').style.display='block';pin="";updateDots();}};
+  window.checkPin=()=>{if(pin==="1324"){document.getElementById('lockscreen').style.display='none';switchFolder('inbox');}else{document.getElementById('pinError').style.display='block';pin="";updateDots();}};
   function updateDots(){document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("filled",i<pin.length));}
 
   const emails={inbox:[
@@ -127,3 +127,4 @@ window.onload=()=>{
 </script>
 </body>
 </html>
+
