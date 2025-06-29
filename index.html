@@ -112,7 +112,14 @@ window.onload=()=>{
   let currentFolder="inbox";
   const sidebar=document.getElementById('sidebar'),emailListDiv=document.getElementById('emaillist'),previewPane=document.getElementById('previewpane');
 
-  function switchFolder(folder){currentFolder=folder;showList();emailListDiv.innerHTML='';document.getElementById("search").value="";emails[folder].forEach((m,i)=>appendMail(m,i));if(emails[folder].length===0)previewPane.innerHTML+=`<p>Deze map is leeg.</p>`;if(window.innerWidth<=768)sidebar.style.display="none";if(folder==="inbox")setTimeout(()=>showNotification(),2000);}
+  function goBack() {
+  emailListDiv.style.display = "flex";
+  sidebar.style.display = window.innerWidth <= 768 ? "none" : "flex";
+  previewPane.innerHTML = `<button class="back-btn" onclick="goBack()">Terug</button>`;
+  emailListDiv.innerHTML = '';
+  emails[currentFolder].forEach((m, i) => appendMail(m, i));
+}
+function switchFolder(folder){currentFolder=folder;showList();emailListDiv.innerHTML='';document.getElementById("search").value="";emails[folder].forEach((m,i)=>appendMail(m,i));if(emails[folder].length===0)previewPane.innerHTML+=`<p>Deze map is leeg.</p>`;if(window.innerWidth<=768)sidebar.style.display="none";if(folder==="inbox")setTimeout(()=>showNotification(),2000);}
   function appendMail(m,i){const e=document.createElement('div');e.className='email-item';if(m.unread)e.innerHTML+=`<div class="unread-dot"></div>`;e.innerHTML+=`<strong>${m.subject}</strong>Van: ${m.sender}`;e.onclick=()=>openMail(m,i);emailListDiv.appendChild(e);}
   function openMail(m,i){m.unread=false;previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button><div class="fade-in"><h1>${m.subject}</h1><h3>Van: ${m.sender}</h3>${m.date?`<p><em>${m.date}</em></p>`:""}<p>${m.body.replace(/\n/g,"<br>")}</p><img src="https://i.imgur.com/kWlmXCq.png" alt="Logo" style="margin-top:20px;width:100px;"></div>`;if(window.innerWidth<=768)emailListDiv.style.display="none";}
   function openCompose(){previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button><h1>Nieuwe e-mail opstellen</h1><p>Onderwerp: <input type="text" id="subject" style="width:80%"></p><p>Bericht:</p><textarea id="body" rows="10" style="width:95%"></textarea><br><br><button onclick="sendMail()">Verstuur</button>`;if(window.innerWidth<=768){sidebar.style.display="none";emailListDiv.style.display="none";}}
@@ -127,4 +134,3 @@ window.onload=()=>{
 </script>
 </body>
 </html>
-
