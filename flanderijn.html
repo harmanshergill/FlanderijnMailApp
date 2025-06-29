@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flanderijn Mail</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      height: 100vh;
+      display: flex;
+      color: #333;
+      overflow: hidden;
+    }
+    #splash {
+      position: fixed;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      background: #1d3e7a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #splash img {
+      width: 300px;
+    }
+    .sidebar {
+      width: 200px;
+      background: #0078D4;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+    .sidebar h2 {
+      font-size: 16px;
+      margin-top: 0;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar li, .new-mail-btn {
+      padding: 8px 0;
+      cursor: pointer;
+    }
+    .sidebar li:hover, .new-mail-btn:hover {
+      background-color: rgba(255,255,255,0.2);
+    }
+    .new-mail-btn {
+      margin-top: 20px;
+      background: white;
+      color: #0078D4;
+      text-align: center;
+      border-radius: 4px;
+    }
+    .email-list {
+      width: 300px;
+      border-right: 1px solid #ccc;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    .email-item {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+    .email-item:hover {
+      background: #f0f0f0;
+    }
+    .email-item strong {
+      display: block;
+      font-size: 14px;
+    }
+    .email-preview {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <img src="https://i.imgur.com/MzN84xf.png" alt="Flanderijn Logo">
+  </div>
+
+  <div class="sidebar">
+    <h2>Flanderijn Mail</h2>
+    <ul>
+      <li onclick="switchFolder('inbox')">Postvak IN</li>
+      <li onclick="switchFolder('sent')">Verzonden</li>
+      <li onclick="switchFolder('drafts')">Concepten</li>
+      <li onclick="switchFolder('deleted')">Verwijderd</li>
+    </ul>
+    <div class="new-mail-btn" onclick="openCompose()">Nieuwe e-mail</div>
+  </div>
+  <div class="email-list"></div>
+  <div class="email-preview">
+    <h1>Welkom bij Flanderijn Mail</h1>
+    <p>Selecteer een map of e-mail om te beginnen.</p>
+  </div>
+
+  <script>
+    const emails = {
+      inbox: [
+        {
+          subject: "Herinnering: aanmelding zomerborrel vóór 12:00",
+          sender: "Chayenne Pack <manager@flanderijn.nl>",
+          body: `Goedemorgen,
+
+Voor collega's die zich nog niet hebben aangemeld voor de zomerborrel: graag vandaag vóór 12:00 doorgeven als je toch wilt komen, zodat we de reservering bij het restaurant kunnen aanpassen.
+
+Dank voor de snelle reactie!
+
+Met vriendelijke groet,
+Chayenne Pack`
+        },
+        {
+          subject: "Kun je je auto meenemen?",
+          sender: "Chayenne Pack <manager@flanderijn.nl>",
+          body: `Hoi,
+
+Zou je je auto mee kunnen nemen voor de zomerborrel? Dan kunnen we samen zorgen dat iedereen op tijd bij het restaurant is. Alvast bedankt!
+
+Met vriendelijke groet,
+Chayenne Pack`
+        },
+        {
+          subject: "Nieuwe werkmethodes per 1 juni",
+          sender: "hr@flanderijn.nl",
+          body: "Beste collega’s,\n\nVanaf 1 juni introduceren we nieuwe werkmethodes voor dossierbehandeling. Bekijk het document op intranet voor details.\n\nMet vriendelijke groet,\nHR-afdeling"
+        },
+        {
+          subject: "Lift kapot: gebruik trap",
+          sender: "facilitair@flanderijn.nl",
+          body: "Goedemorgen,\n\nHelaas is de lift bij de hoofdingang defect. De monteur komt morgenochtend. Gebruik tijdelijk de trap. Excuses voor het ongemak.\n\nFacilitair Beheer"
+        },
+        {
+          subject: "Herinnering: evaluatiegesprek",
+          sender: "manager@flanderijn.nl",
+          body: "Hallo,\n\nDit is een herinnering voor je evaluatiegesprek op vrijdag 14 juni om 10:00 uur in kamer 3. Graag bevestigen.\n\nMet vriendelijke groet,\nJouw manager"
+        },
+        {
+          subject: "Parkeerterrein tijdelijk afgesloten",
+          sender: "facilitair@flanderijn.nl",
+          body: "Beste medewerkers,\n\nOp maandag 24 juni wordt het parkeerterrein opnieuw geasfalteerd. Parkeren is dan niet mogelijk.\n\nTeam Facilitair"
+        },
+        {
+          subject: "Uitnodiging zomerborrel",
+          sender: "Chayenne Pack <manager@flanderijn.nl>",
+          body: `Hoi allemaal,
+
+Op vrijdag 28 juni houden we onze jaarlijkse zomerborrel. We verzamelen rond 16:00 op kantoor. We starten met een korte evaluatie, leren nieuwe collega's kennen en spelen een paar leuke spelletjes. Ook is er ruimte om nieuwe ideeën en plannen kenbaar te maken.
+
+Daarna vertrekken we gezamenlijk naar restaurant Foodexplorer in Utrecht. Auto's zijn geregeld en onderling besproken met collega's.
+
+Planning:
+16:00 - Verzamelen op kantoor
+16:15 - Evaluatie en kennismaking
+16:45 - Spelletjes & brainstorm
+17:30 - Vertrek naar restaurant
+18:00 - Diner bij Foodexplorer
+20:30 - Gezellige borrel
+00:00 - Einde programma
+
+Tot dan!`
+        }
+      ],
+      sent: [],
+      drafts: [],
+      deleted: []
+    };
+
+    const emailListDiv = document.querySelector('.email-list');
+    const previewPane = document.querySelector('.email-preview');
+
+    function switchFolder(folder) {
+      emailListDiv.innerHTML = '';
+      previewPane.innerHTML = `<h1>${folderName(folder)}</h1>`;
+
+      if (emails[folder].length === 0) {
+        previewPane.innerHTML += `<p>Deze map is leeg.</p>`;
+      } else {
+        emails[folder].forEach((mail, i) => {
+          const item = document.createElement('div');
+          item.className = 'email-item';
+          item.innerHTML = `<strong>Onderwerp: ${mail.subject}</strong>Van: ${mail.sender}`;
+          item.onclick = () => {
+            previewPane.innerHTML = `
+              <h1>${mail.subject}</h1>
+              <h3>Van: ${mail.sender}</h3>
+              <p>${mail.body.replace(/\n/g, "<br>")}</p>
+            `;
+          };
+          emailListDiv.appendChild(item);
+        });
+      }
+    }
+
+    function openCompose() {
+      previewPane.innerHTML = `
+        <h1>Nieuwe e-mail opstellen</h1>
+        <p>Onderwerp: <input type="text" id="subject" style="width:80%"></p>
+        <p>Bericht:</p>
+        <textarea id="body" rows="10" style="width:95%"></textarea><br><br>
+        <button onclick="sendMail()">Verstuur</button>
+      `;
+    }
+
+    function sendMail() {
+      const subject = document.getElementById('subject').value.trim();
+      const body = document.getElementById('body').value.trim();
+      if (subject && body) {
+        emails.sent.push({subject, sender: 'ikzelf@flanderijn.nl', body});
+        alert("E-mail verzonden!");
+        switchFolder('sent');
+      } else {
+        alert("Vul onderwerp en bericht in.");
+      }
+    }
+
+    function folderName(folder) {
+      switch (folder) {
+        case 'inbox': return 'Postvak IN';
+        case 'sent': return 'Verzonden';
+        case 'drafts': return 'Concepten';
+        case 'deleted': return 'Verwijderd';
+        default: return folder;
+      }
+    }
+
+    window.onload = () => {
+      setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+        switchFolder('inbox');
+      }, 2000);
+    };
+  </script>
+</body>
+</html>
