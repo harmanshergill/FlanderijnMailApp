@@ -92,121 +92,38 @@ body {margin:0;font-family:sans-serif;height:100vh;display:flex;color:#333;overf
   <h1>Welkom bij Flanderijn Mail</h1>
   <p>Selecteer een map of e-mail om te beginnen.</p>
 </div>
-
 <script>
-// Lockscreen
-let pin="";function pressKey(n){if(pin.length<4){pin+=n;updateDots();}}function clearPin(){pin=pin.slice(0,-1);updateDots();}function updateDots(){document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("filled",i<pin.length));}function checkPin(){if(pin==="1324")document.getElementById('lockscreen').style.display='none';else{document.getElementById('pinError').style.display='block';pin="";updateDots();}}
-// Fake mails
-const emails={inbox:[{subject:"Herinnering: aanmelding zomerborrel vóór 12:00",sender:"Chayenne Pack <manager@flanderijn.nl>",date:"Vandaag om 10:00",unread:true,body:`Goedemorgen,\n\nVoor collega's die zich nog niet hebben aangemeld voor de zomerborrel: graag vandaag vóór 12:00 doorgeven als je toch wilt komen, zodat we de reservering bij het restaurant kunnen aanpassen.\n\nDank voor de snelle reactie!\n\nMet vriendelijke groet,\nChayenne Pack`},{subject:"Kun je je auto meenemen?",sender:"Chayenne Pack <manager@flanderijn.nl>",date:"Vandaag om 09:30",unread:true,body:`Hoi,\n\nZou je je auto mee kunnen nemen voor de zomerborrel? Dan kunnen we samen zorgen dat iedereen op tijd bij het restaurant is. Alvast bedankt!\n\nMet vriendelijke groet,\nChayenne Pack`}],sent:[],drafts:[],deleted:[]};
-let currentFolder="inbox";
-const sidebar=document.getElementById('sidebar'),emailListDiv=document.getElementById('emaillist'),previewPane=document.getElementById('previewpane');
-function switchFolder(folder){currentFolder=folder;showList();emailListDiv.innerHTML='';document.getElementById("search").value="";emails[folder].forEach((m,i)=>appendMail(m,i));if(emails[folder].length===0)previewPane.innerHTML+=`<p>Deze map is leeg.</p>`;if(window.innerWidth<=768)sidebar.style.display="none";if(folder==="inbox")setTimeout(()=>showNotification(),2000);}
-function appendMail(m,i){const e=document.createElement('div');e.className='email-item';if(m.unread)e.innerHTML+=`<div class="unread-dot"></div>`;e.innerHTML+=`<strong>${m.subject}</strong>Van: ${m.sender}`;e.onclick=()=>openMail(m,i);emailListDiv.appendChild(e);}
-function openMail(m,i){m.unread=false;previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button><div class="fade-in"><h1>${m.subject}</h1><h3>Van: ${m.sender}</h3>${m.date?`<p><em>${m.date}</em></p>`:""}<p>${m.body.replace(/\n/g,"<br>")}</p><img src="https://i.imgur.com/kWlmXCq.png" alt="Logo" style="margin-top:20px;width:100px;"></div>`;if(window.innerWidth<=768)emailListDiv.style.display="none";}
-function openCompose(){previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button><h1>Nieuwe e-mail opstellen</h1><p>Onderwerp: <input type="text" id="subject" style="width:80%"></p><p>Bericht:</p><textarea id="body" rows="10" style="width:95%"></textarea><br><br><button onclick="sendMail()">Verstuur</button>`;if(window.innerWidth<=768){sidebar.style.display="none";emailListDiv.style.display="none";}}
-function goBack(){showList();}
-function showList(){emailListDiv.style.display="flex";previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button>`;emailListDiv.innerHTML='';emails[currentFolder].forEach((m,i)=>appendMail(m,i));}
-function sendMail(){const s=document.getElementById('subject').value.trim(),b=document.getElementById('body').value.trim();if(s&&b){const t=new Date(),d=`${t.getDate()}-${t.getMonth()+1}-${t.getFullYear()} ${t.getHours()}:${t.getMinutes()}`;emails.sent.unshift({subject:s,sender:"Ik",date:d,body:b});alert("E-mail verzonden!");switchFolder('sent');}else alert("Vul onderwerp en bericht in.");}
-function filterMails(){const q=document.getElementById("search").value.toLowerCase();emailListDiv.innerHTML='';emails[currentFolder].filter(m=>m.subject.toLowerCase().includes(q)||m.sender.toLowerCase().includes(q)).forEach((m,i)=>appendMail(m,i));}
-function showNotification(){const n=document.getElementById("notification");n.style.display="block";setTimeout(()=>n.style.display="none",3000);}
-function toggleChat(){const c=document.getElementById("chatPopup");c.style.display=c.style.display==="block"?"none":"block";}
-function sendChat(){const input=document.getElementById("chatInput");if(input.value.trim()){document.getElementById("chatMessages").innerHTML+=`<p><strong>Jij:</strong> ${input.value}</p>`;input.value="";}}
-window.onload=()=>setTimeout(()=>document.getElementById('splash').style.display='none',2000);
+window.onload=()=>{
+  document.getElementById('splash').style.display='none';
+  let pin=""; window.pressKey=n=>{if(pin.length<4){pin+=n;updateDots();}};
+  window.clearPin=()=>{pin=pin.slice(0,-1);updateDots();};
+  window.checkPin=()=>{if(pin==="1324"){document.getElementById('lockscreen').style.display='none';}else{document.getElementById('pinError').style.display='block';pin="";updateDots();}};
+  function updateDots(){document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("filled",i<pin.length));}
+
+  const emails={inbox:[
+  {subject:"Herinnering: aanmelding zomerborrel vóór 12:00",sender:"Chayenne Pack <manager@flanderijn.nl>",date:"Vandaag om 10:00",unread:true,body:`Goedemorgen,\n\nVoor collega's die zich nog niet hebben aangemeld voor de zomerborrel: graag vandaag vóór 12:00 doorgeven als je toch wilt komen, zodat we de reservering bij het restaurant kunnen aanpassen.\n\nDank voor de snelle reactie!\n\nMet vriendelijke groet,\nChayenne Pack`},
+  {subject:"Kun je je auto meenemen?",sender:"Chayenne Pack <manager@flanderijn.nl>",date:"Vandaag om 09:30",unread:true,body:`Hoi,\n\nZou je je auto mee kunnen nemen voor de zomerborrel? Dan kunnen we samen zorgen dat iedereen op tijd bij het restaurant is. Alvast bedankt!\n\nMet vriendelijke groet,\nChayenne Pack`},
+  {subject:"Nieuwe werkmethodes per 1 juni",sender:"hr@flanderijn.nl",date:"27 mei 2024 08:00",unread:true,body:`Beste collega’s,\n\nVanaf 1 juni introduceren we nieuwe werkmethodes voor dossierbehandeling. Bekijk het document op intranet voor details.\n\nMet vriendelijke groet,\nHR-afdeling`},
+  {subject:"Lift kapot: gebruik trap",sender:"facilitair@flanderijn.nl",date:"24 mei 2024 07:15",unread:true,body:`Goedemorgen,\n\nHelaas is de lift bij de hoofdingang defect. De monteur komt morgenochtend. Gebruik tijdelijk de trap. Excuses voor het ongemak.\n\nFacilitair Beheer`},
+  {subject:"Herinnering: evaluatiegesprek",sender:"manager@flanderijn.nl",date:"21 mei 2024 15:00",unread:true,body:`Hallo,\n\nDit is een herinnering voor je evaluatiegesprek op vrijdag 14 juni om 10:00 uur in kamer 3. Graag bevestigen.\n\nMet vriendelijke groet,\nJouw manager`},
+  {subject:"Parkeerterrein tijdelijk afgesloten",sender:"facilitair@flanderijn.nl",date:"18 mei 2024 09:00",unread:true,body:`Beste medewerkers,\n\nOp maandag 24 juni wordt het parkeerterrein opnieuw geasfalteerd. Parkeren is dan niet mogelijk.\n\nTeam Facilitair`},
+  {subject:"Uitnodiging zomerborrel",sender:"Chayenne Pack <manager@flanderijn.nl>",date:"15 mei 2024 11:00",unread:true,body:`Hoi allemaal,\n\nOp vrijdag 28 juni houden we onze jaarlijkse zomerborrel. We verzamelen rond 16:00 op kantoor. We starten met een korte evaluatie, leren nieuwe collega's kennen en spelen een paar leuke spelletjes. Ook is er ruimte om nieuwe ideeën en plannen kenbaar te maken.\n\nDaarna vertrekken we gezamenlijk naar restaurant Foodexplorer in Utrecht. Auto's zijn geregeld en onderling besproken met collega's.\n\nPlanning:\n16:00 - Verzamelen op kantoor\n16:15 - Evaluatie en kennismaking\n16:45 - Spelletjes & brainstorm\n17:30 - Vertrek naar restaurant\n18:00 - Diner bij Foodexplorer\n20:30 - Gezellige borrel\n00:00 - Einde programma\n\nTot dan!`}
+],sent:[],drafts:[],deleted:[]};
+  let currentFolder="inbox";
+  const sidebar=document.getElementById('sidebar'),emailListDiv=document.getElementById('emaillist'),previewPane=document.getElementById('previewpane');
+
+  function switchFolder(folder){currentFolder=folder;showList();emailListDiv.innerHTML='';document.getElementById("search").value="";emails[folder].forEach((m,i)=>appendMail(m,i));if(emails[folder].length===0)previewPane.innerHTML+=`<p>Deze map is leeg.</p>`;if(window.innerWidth<=768)sidebar.style.display="none";if(folder==="inbox")setTimeout(()=>showNotification(),2000);}
+  function appendMail(m,i){const e=document.createElement('div');e.className='email-item';if(m.unread)e.innerHTML+=`<div class="unread-dot"></div>`;e.innerHTML+=`<strong>${m.subject}</strong>Van: ${m.sender}`;e.onclick=()=>openMail(m,i);emailListDiv.appendChild(e);}
+  function openMail(m,i){m.unread=false;previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button><div class="fade-in"><h1>${m.subject}</h1><h3>Van: ${m.sender}</h3>${m.date?`<p><em>${m.date}</em></p>`:""}<p>${m.body.replace(/\n/g,"<br>")}</p><img src="https://i.imgur.com/kWlmXCq.png" alt="Logo" style="margin-top:20px;width:100px;"></div>`;if(window.innerWidth<=768)emailListDiv.style.display="none";}
+  function openCompose(){previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button><h1>Nieuwe e-mail opstellen</h1><p>Onderwerp: <input type="text" id="subject" style="width:80%"></p><p>Bericht:</p><textarea id="body" rows="10" style="width:95%"></textarea><br><br><button onclick="sendMail()">Verstuur</button>`;if(window.innerWidth<=768){sidebar.style.display="none";emailListDiv.style.display="none";}}
+  function goBack(){showList();}
+  function showList(){emailListDiv.style.display="flex";previewPane.innerHTML=`<button class="back-btn" onclick="goBack()">Terug</button>`;emailListDiv.innerHTML='';emails[currentFolder].forEach((m,i)=>appendMail(m,i));}
+  function sendMail(){const s=document.getElementById('subject').value.trim(),b=document.getElementById('body').value.trim();if(s&&b){const t=new Date(),d=`${t.getDate()}-${t.getMonth()+1}-${t.getFullYear()} ${t.getHours()}:${t.getMinutes()}`;emails.sent.unshift({subject:s,sender:"Ik",date:d,body:b});alert("E-mail verzonden!");switchFolder('sent');}else alert("Vul onderwerp en bericht in.");}
+  function filterMails(){const q=document.getElementById("search").value.toLowerCase();emailListDiv.innerHTML='';emails[currentFolder].filter(m=>m.subject.toLowerCase().includes(q)||m.sender.toLowerCase().includes(q)).forEach((m,i)=>appendMail(m,i));}
+  function showNotification(){const n=document.getElementById("notification");n.style.display="block";setTimeout(()=>n.style.display="none",3000);}
+  window.toggleChat=()=>{const c=document.getElementById("chatPopup");c.style.display=c.style.display==="block"?"none":"block";};
+  window.sendChat=()=>{const input=document.getElementById("chatInput");if(input.value.trim()){document.getElementById("chatMessages").innerHTML+=`<p><strong>Jij:</strong> ${input.value}</p>`;input.value="";}};
+};
 </script>
 </body>
 </html>
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Flanderijn Mail</title>
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Flanderijn Mail">
-<link rel="apple-touch-icon" href="https://i.imgur.com/MzN84xf.png">
-
-<style>
-body {margin:0;font-family:sans-serif;height:100vh;display:flex;color:#333;overflow:hidden;flex-direction:row;background:white;}
-#lockscreen {position:fixed;z-index:30;width:100%;height:100%;background:white;display:flex;align-items:center;justify-content:center;}
-.lock-container{text-align:center;}
-.lock-logo{width:100px;margin-bottom:20px;}
-#pin-dots{display:flex;justify-content:center;margin-bottom:20px;}
-.dot{width:15px;height:15px;border-radius:50%;border:1px solid #333;margin:0 5px;background:white;}
-.dot.filled{background:#333;}
-.keypad{display:grid;grid-template-columns:repeat(3,60px);grid-gap:10px;justify-content:center;}
-.keypad button{font-size:20px;padding:15px;border:none;border-radius:8px;background:#e0e0e0;cursor:pointer;}
-.keypad button:active{background:#ccc;}
-#pinError{color:red;display:none;margin-top:15px;}
-#splash{position:fixed;z-index:20;width:100%;height:100%;background:#213B8F;display:flex;align-items:center;justify-content:center;}
-#splash img{width:300px;}
-.sidebar{width:200px;background:#0078D4;color:white;padding:20px;box-sizing:border-box;flex-shrink:0;display:flex;flex-direction:column;}
-.sidebar h2{font-size:16px;margin-top:0;}
-.sidebar ul{list-style:none;padding:0;flex-grow:1;}
-.sidebar li,.new-mail-btn{padding:8px 0;cursor:pointer;}
-.sidebar li:hover,.new-mail-btn:hover{background-color:rgba(255,255,255,0.2);}
-.new-mail-btn{margin-top:20px;background:white;color:#0078D4;text-align:center;border-radius:4px;}
-.search-container{margin-bottom:10px;}
-.search-container input{width:100%;padding:5px;border-radius:4px;border:none;}
-.email-list{width:300px;border-right:1px solid #ccc;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;}
-.email-item{padding:15px;border-bottom:1px solid #ddd;cursor:pointer;word-break:break-word;position:relative;}
-.email-item:hover{background:#f0f0f0;}
-.email-item strong{display:block;font-size:14px;}
-.unread-dot{width:8px;height:8px;background:#0078D4;border-radius:50%;position:absolute;left:5px;top:50%;transform:translateY(-50%);}
-.email-preview{flex-grow:1;padding:20px;overflow-y:auto;position:relative;display:flex;flex-direction:column;word-wrap:break-word;}
-.fade-in{animation:fadein 0.5s;}
-@keyframes fadein{from{opacity:0;}to{opacity:1;}}
-.back-btn{display:block;margin-bottom:10px;padding:8px;background:#0078D4;color:white;border:none;border-radius:4px;cursor:pointer;width:fit-content;}
-.email-preview p,.email-preview h1,.email-preview h3{text-align:left;margin-right:0;margin-left:0;}
-#notification{position:fixed;top:20px;right:20px;background:#0078D4;color:white;padding:10px 20px;border-radius:4px;display:none;z-index:50;}
-#chatBtn{position:fixed;bottom:20px;right:20px;z-index:40;background:#0078D4;color:white;border:none;padding:15px;border-radius:50%;cursor:pointer;font-size:18px;}
-#chatPopup{position:fixed;bottom:80px;right:20px;width:300px;background:white;border:1px solid #ccc;border-radius:8px;box-shadow:0 0 10px rgba(0,0,0,0.2);display:none;z-index:40;}
-#chatPopup header{background:#0078D4;color:white;padding:10px;border-radius:8px 8px 0 0;}
-#chatPopup .messages{padding:10px;max-height:300px;overflow-y:auto;font-size:14px;}
-#chatPopup input{width:80%;padding:8px;border:1px solid #ccc;border-radius:4px;}
-#chatPopup button{padding:8px;border:none;background:#0078D4;color:white;border-radius:4px;cursor:pointer;}
-@media (max-width:768px){body{flex-direction:column;}.sidebar,.email-list,.email-preview{width:100%;height:100%;}}
-</style>
-</head>
-<body>
-
-<div id="lockscreen">
-  <div class="lock-container">
-    <img src="https://i.imgur.com/kWlmXCq.png" alt="Logo" class="lock-logo">
-    <h2>Voer toegangscode in</h2>
-    <div id="pin-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
-    <div class="keypad">
-      <button onclick="pressKey(1)">1</button><button onclick="pressKey(2)">2</button><button onclick="pressKey(3)">3</button>
-      <button onclick="pressKey(4)">4</button><button onclick="pressKey(5)">5</button><button onclick="pressKey(6)">6</button>
-      <button onclick="pressKey(7)">7</button><button onclick="pressKey(8)">8</button><button onclick="pressKey(9)">9</button>
-      <button onclick="clearPin()">⌫</button><button onclick="pressKey(0)">0</button><button onclick="checkPin()">✓</button>
-    </div>
-    <p id="pinError">Onjuiste code. Probeer opnieuw.</p>
-  </div>
-</div>
-
-<div id="splash"><img src="https://i.imgur.com/MzN84xf.png" alt="Flanderijn Logo"></div>
-<div id="notification">Nieuwe e-mail ontvangen!</div>
-<button id="chatBtn" onclick="toggleChat()">💬</button>
-<div id="chatPopup"><header>Support Chat</header><div class="messages" id="chatMessages"><p><strong>Support:</strong> Hoi! Hoe kan ik helpen?</p></div><div style="display:flex;gap:5px;padding:10px;"><input id="chatInput" placeholder="Typ een bericht..." onkeypress="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">▶</button></div></div>
-
-<div class="sidebar" id="sidebar">
-  <h2>Flanderijn Mail</h2>
-  <div class="search-container"><input type="text" id="search" placeholder="Zoeken..." oninput="filterMails()"></div>
-  <ul>
-    <li onclick="switchFolder('inbox')">Postvak IN</li>
-    <li onclick="switchFolder('sent')">Verzonden</li>
-    <li onclick="switchFolder('drafts')">Concepten</li>
-    <li onclick="switchFolder('deleted')">Verwijderd</li>
-  </ul>
-  <div class="new-mail-btn" onclick="openCompose()">Nieuwe e-mail</div>
-</div>
-
-<div class="email-list" id="emaillist"></div>
-<div class="email-preview" id="previewpane">
-  <button class="back-btn" onclick="goBack()">Terug</button>
-  <h1>Welkom bij Flanderijn Mail</h1>
-  <p>Selecteer een map of e-mail om te beginnen.</p>
-</div>
-
